@@ -65,6 +65,12 @@ messages_db: dict = {}          # in-memory store for outreach messages
 
 DB_FILE = os.path.join(os.path.dirname(__file__), "jobs.db")
 
+# Run startup init at import time so gunicorn picks it up (not just __main__)
+def _startup():
+    init_jobs_db()
+    _ensure_outreach_table()
+    start_background_refresh()
+
 # ── roles & locations to pre-warm ────────────────────────────────────
 BACKGROUND_ROLES = [
     "Backend Engineer",
@@ -655,16 +661,9 @@ if LINKEDIN_AUTH_AVAILABLE:
 #  Entry point
 # ════════════════════════════════════════════════════════════════════
 
+_startup()
+
 if __name__ == "__main__":
-    print("[STARTUP] Flask app starting...")
-
-    # 1. Initialise DB schema
-    init_jobs_db()
-    _ensure_outreach_table()
-
-    # 2. Launch background scrape/fetch threads
-    start_background_refresh()
-
     print("[STARTUP] Server listening on http://0.0.0.0:8000")
     app.run(debug=True, host="0.0.0.0", port=8000, use_reloader=False)
     # use_reloader=False prevents Flask's dev reloader from doubling
