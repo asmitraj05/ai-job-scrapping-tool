@@ -59,7 +59,7 @@ function App() {
       }, 5000)
     } catch (err) {
       console.error('Workflow error:', err)
-      setError(`Failed to search jobs. Make sure backend is running on port 8000. Error: ${err.message}`)
+      setError(`Failed to search jobs. Error: ${err.message}`)
       setView('input')
       setLoading(false)
     }
